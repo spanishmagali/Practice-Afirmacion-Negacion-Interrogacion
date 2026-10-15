@@ -1,0 +1,942 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Español - Afirmación, Negación e Interrogación</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Plus Jakarta Sans', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: {
+                            50: '#f0f7ff',
+                            100: '#e0effe',
+                            500: '#3b82f6',
+                            600: '#2563eb',
+                            700: '#1d4ed8',
+                            800: '#1e40af',
+                            900: '#1e3a8a',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        .card-flip {
+            perspective: 1000px;
+        }
+        .card-flip-inner {
+            transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+            transform-style: preserve-3d;
+        }
+        .card-flip.flipped .card-flip-inner {
+            transform: rotateY(180deg);
+        }
+        .card-front, .card-back {
+            backface-visibility: hidden;
+            -webkit-backface-visibility: hidden;
+        }
+        .card-back {
+            transform: rotateY(180deg);
+        }
+        .pulse-subtle {
+            animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+        /* Custom Scrollbars */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+        .tab-view {
+            animation: fadeIn 0.3s ease-in-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .hidden-tab {
+            display: none !important;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 font-sans min-h-screen flex flex-col overflow-x-hidden">
+
+    <header class="bg-slate-900 text-white border-b border-slate-800 sticky top-0 z-50 shadow-md">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3.5 flex flex-wrap items-center justify-between gap-4">
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-blue-600 to-indigo-500 flex items-center justify-center shadow-lg shadow-blue-500/30">
+                    <i class="fa-solid fa-language text-white text-xl"></i>
+                </div>
+                <div>
+                    <h1 class="text-xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-indigo-200">
+                        Gramática Española
+                    </h1>
+                    <p class="text-xs text-slate-400 font-medium">Afirmación, Negación e Interrogación</p>
+                </div>
+            </div>
+
+            <!-- Stats Header -->
+            <div class="flex items-center space-x-4 text-xs font-semibold flex-wrap gap-y-2">
+                <div class="bg-slate-800/80 px-3 py-1.5 rounded-lg border border-slate-700/60 flex items-center space-x-2">
+                    <i class="fa-solid fa-award text-amber-400 text-sm"></i>
+                    <span>Score: <span id="headerScore" class="text-amber-400 font-bold">0</span></span>
+                </div>
+                <div class="bg-slate-800/80 px-3 py-1.5 rounded-lg border border-slate-700/60 flex items-center space-x-2">
+                    <i class="fa-solid fa-fire text-orange-500 text-sm"></i>
+                    <span>Streak: <span id="headerStreak" class="text-orange-400 font-bold">0</span></span>
+                </div>
+                <div class="bg-slate-800/80 px-3 py-1.5 rounded-lg border border-slate-700/60 flex items-center space-x-2">
+                    <i class="fa-solid fa-check-double text-emerald-400 text-sm"></i>
+                    <span>Learned: <span id="headerLearned" class="text-emerald-400 font-bold">0</span>/40</span>
+                </div>
+                <button onclick="exportProgress()" class="bg-emerald-600 hover:bg-emerald-500 px-3 py-1.5 rounded-lg border border-emerald-500/60 flex items-center space-x-2 transition-colors cursor-pointer text-white">
+                    <i class="fa-solid fa-download"></i>
+                    <span>Save Progress</span>
+                </button>
+            </div>
+        </div>
+
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 border-t border-slate-800/80">
+            <nav class="flex space-x-1 sm:space-x-2 overflow-x-auto py-2 no-scrollbar text-sm font-medium" id="mainTabs">
+                <button onclick="switchTab('vocab')" id="tab-vocab" class="nav-tab active text-blue-400 bg-slate-800 px-3.5 py-2 rounded-lg flex items-center space-x-2 whitespace-nowrap transition-all">
+                    <i class="fa-solid fa-book-open"></i>
+                    <span>Vocabulary List (40)</span>
+                </button>
+                <button onclick="switchTab('flashcards')" id="tab-flashcards" class="nav-tab text-slate-400 hover:text-white px-3.5 py-2 rounded-lg flex items-center space-x-2 whitespace-nowrap transition-all">
+                    <i class="fa-solid fa-layer-group"></i>
+                    <span>Audio Flashcards</span>
+                </button>
+                <button onclick="switchTab('quiz')" id="tab-quiz" class="nav-tab text-slate-400 hover:text-white px-3.5 py-2 rounded-lg flex items-center space-x-2 whitespace-nowrap transition-all">
+                    <i class="fa-solid fa-pen-to-square"></i>
+                    <span>Practice Test</span>
+                </button>
+                <button onclick="switchTab('lab')" id="tab-lab" class="nav-tab text-slate-400 hover:text-white px-3.5 py-2 rounded-lg flex items-center space-x-2 whitespace-nowrap transition-all">
+                    <i class="fa-solid fa-yin-yang"></i>
+                    <span>Opposites Lab</span>
+                </button>
+                <button onclick="switchTab('explorer')" id="tab-explorer" class="nav-tab text-slate-400 hover:text-white px-3.5 py-2 rounded-lg flex items-center space-x-2 whitespace-nowrap transition-all">
+                    <i class="fa-solid fa-sitemap"></i>
+                    <span>Concept Map</span>
+                </button>
+            </nav>
+        </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex-1 w-full relative">
+
+        <!-- TAB 1: VOCABULARY DICTIONARY -->
+        <section id="view-vocab" class="tab-view space-y-6 block">
+            <div class="bg-white rounded-2xl p-5 shadow-sm border border-slate-200/80 flex flex-col md:flex-row items-center justify-between gap-4">
+                <div>
+                    <h2 class="text-xl font-bold text-slate-900 flex items-center gap-2">
+                        <span>Grammar Master List</span>
+                        <span class="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-blue-100 text-blue-700">40 Terms</span>
+                    </h2>
+                    <p class="text-sm text-slate-500 mt-0.5">Click any speaker icon to hear authentic pronunciation. Search and filter by category.</p>
+                </div>
+                
+                <div class="flex flex-wrap items-center gap-3 w-full md:w-auto">
+                    <!-- Search input -->
+                    <div class="relative flex-1 md:w-64">
+                        <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-sm"></i>
+                        <input type="text" id="vocabSearch" oninput="filterVocab()" placeholder="Search Spanish or English..." 
+                            class="w-full pl-9 pr-4 py-2 text-sm bg-slate-50 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition-all">
+                    </div>
+                    
+                    <!-- Filter category -->
+                    <select id="vocabFilter" onchange="filterVocab()" class="py-2 pl-3 pr-8 text-sm bg-slate-50 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <option value="all">All Categories</option>
+                        <option value="afirmacion">Afirmación (Affirmation)</option>
+                        <option value="negacion">Negación (Negation)</option>
+                        <option value="interrogacion">Interrogación (Question Words)</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Vocabulary Cards Grid -->
+            <div id="vocabGrid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                <!-- Dynamically populated via JS -->
+            </div>
+        </section>
+
+        <!-- TAB 2: FLASHCARDS -->
+        <section id="view-flashcards" class="tab-view hidden-tab space-y-6">
+            <div class="max-w-xl mx-auto space-y-6">
+                <!-- Control Bar -->
+                <div class="flex items-center justify-between text-sm">
+                    <span class="font-semibold text-slate-600">Card <span id="cardIndex">1</span> of <span id="cardTotal">40</span></span>
+                    <div class="flex items-center space-x-2">
+                        <button onclick="shuffleFlashcards()" class="px-3 py-1.5 text-xs font-semibold bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg transition-all flex items-center space-x-1">
+                            <i class="fa-solid fa-shuffle"></i>
+                            <span>Shuffle</span>
+                        </button>
+                        <button onclick="resetFlashcards()" class="px-3 py-1.5 text-xs font-semibold bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg transition-all flex items-center space-x-1">
+                            <i class="fa-solid fa-rotate"></i>
+                            <span>Reset</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Interactive Flip Card -->
+                <div id="flashcardElement" class="card-flip w-full h-80 cursor-pointer select-none" onclick="toggleCardFlip()">
+                    <div class="card-flip-inner relative w-full h-full rounded-3xl shadow-xl bg-white border border-slate-200">
+                        <!-- Front (Spanish) -->
+                        <div class="card-front absolute inset-0 rounded-3xl p-8 flex flex-col justify-between items-center text-center bg-gradient-to-br from-slate-900 to-indigo-950 text-white">
+                            <div class="w-full flex justify-between items-center text-xs font-medium text-slate-400">
+                                <span id="cardCategoryBadge" class="bg-indigo-900/60 border border-indigo-700/50 px-3 py-1 rounded-full text-indigo-300">Category</span>
+                                <span class="text-slate-400"><i class="fa-solid fa-repeat mr-1"></i> Click to flip</span>
+                            </div>
+
+                            <div class="space-y-3 my-auto">
+                                <h3 id="cardSpanish" class="text-4xl font-extrabold tracking-tight text-white mt-4">siempre</h3>
+                                <p id="cardPhonetic" class="text-xs text-slate-400 italic">SYEHM-preh</p>
+                            </div>
+
+                            <div class="w-full flex justify-center items-center">
+                                <button onclick="event.stopPropagation(); playCurrentCardAudio();" class="w-12 h-12 rounded-full bg-blue-600 hover:bg-blue-500 text-white flex items-center justify-center shadow-lg shadow-blue-500/30 transition-transform active:scale-95">
+                                    <i class="fa-solid fa-volume-high text-lg"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Back (English & Details) -->
+                        <div class="card-back absolute inset-0 rounded-3xl p-8 flex flex-col justify-between items-center text-center bg-white text-slate-900 border-2 border-indigo-100">
+                            <div class="w-full flex justify-between items-center text-xs font-semibold text-slate-400">
+                                <span>ENGLISH TRANSLATION</span>
+                                <span class="text-slate-400"><i class="fa-solid fa-repeat mr-1"></i> Click to flip</span>
+                            </div>
+
+                            <div class="space-y-3 my-auto">
+                                <h4 id="cardEnglish" class="text-3xl font-extrabold text-slate-900">always</h4>
+                                <div id="cardGrammarNote" class="p-3 bg-blue-50 border border-blue-100 rounded-xl text-xs text-blue-900 font-medium">
+                                    Adverb of time
+                                </div>
+                            </div>
+
+                            <div class="w-full text-xs text-slate-400">
+                                Practice saying: <span id="cardSampleSentence" class="text-slate-700 font-semibold">"Siempre estudio."</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Action Controls -->
+                <div class="grid grid-cols-2 gap-4">
+                    <button onclick="processCardResult(false)" class="py-3 px-4 bg-rose-50 hover:bg-rose-100 border border-rose-200 text-rose-700 font-bold rounded-2xl flex items-center justify-center space-x-2 transition-all">
+                        <i class="fa-solid fa-xmark"></i>
+                        <span>Need Review</span>
+                    </button>
+                    <button onclick="processCardResult(true)" class="py-3 px-4 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 text-emerald-700 font-bold rounded-2xl flex items-center justify-center space-x-2 transition-all">
+                        <i class="fa-solid fa-check"></i>
+                        <span>Mastered</span>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB 3: PRACTICE QUIZ -->
+        <section id="view-quiz" class="tab-view hidden-tab space-y-6">
+            <div class="max-w-2xl mx-auto space-y-6">
+                <!-- Quiz Config Header -->
+                <div class="bg-white rounded-2xl p-5 shadow-sm border border-slate-200/80 flex flex-wrap items-center justify-between gap-4">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-10 h-10 rounded-xl bg-purple-100 text-purple-700 flex items-center justify-center font-bold">
+                            <i class="fa-solid fa-graduation-cap"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-bold text-slate-900">Practice Quiz Module</h3>
+                            <p class="text-xs text-slate-500">Test translation and audio comprehension</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <select id="quizType" onchange="startNewQuiz()" class="py-1.5 px-3 text-xs font-semibold bg-slate-100 border border-slate-300 rounded-xl">
+                            <option value="es_en">Spanish ➔ English</option>
+                            <option value="en_es">English ➔ Spanish</option>
+                            <option value="audio">Audio Listening Quiz</option>
+                        </select>
+                        <button onclick="startNewQuiz()" class="px-3 py-1.5 text-xs font-semibold bg-blue-600 hover:bg-blue-500 text-white rounded-xl shadow-sm">
+                            New Quiz
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Quiz Card Container -->
+                <div class="bg-white rounded-3xl p-6 md:p-8 shadow-lg border border-slate-200/80 space-y-6 relative overflow-hidden">
+                    <div class="flex justify-between items-center text-xs font-bold text-slate-400 uppercase tracking-wider">
+                        <span>Question <span id="quizQuestionNum">1</span>/10</span>
+                        <span id="quizScoreBadge" class="text-blue-600 bg-blue-50 px-2.5 py-1 rounded-full">Score: 0/0</span>
+                    </div>
+
+                    <!-- Question Prompt Area -->
+                    <div class="text-center py-6 space-y-4">
+                        <div id="quizPromptSubtitle" class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Translate this term</div>
+                        
+                        <div class="flex items-center justify-center space-x-3">
+                            <h2 id="quizQuestionText" class="text-3xl md:text-4xl font-extrabold text-slate-900">siempre</h2>
+                            <button id="quizAudioBtn" onclick="playQuizQuestionAudio()" class="w-10 h-10 rounded-full bg-blue-100 hover:bg-blue-200 text-blue-700 flex items-center justify-center transition-all">
+                                <i class="fa-solid fa-volume-high text-base"></i>
+                            </button>
+                        </div>
+
+                        <p id="quizHintText" class="text-xs text-slate-400 italic">Select the best match below</p>
+                    </div>
+
+                    <!-- Multiple Choice Options -->
+                    <div id="quizOptionsGrid" class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <!-- Options generated dynamically -->
+                    </div>
+
+                    <!-- Feedback Alert -->
+                    <div id="quizFeedback" class="hidden p-4 rounded-2xl text-center text-sm font-semibold transition-all">
+                        <!-- Feedback content -->
+                    </div>
+
+                    <!-- Next Question Button -->
+                    <div class="flex justify-end pt-2">
+                        <button id="quizNextBtn" onclick="nextQuizQuestion()" disabled class="px-6 py-3 bg-slate-900 hover:bg-slate-800 disabled:opacity-40 disabled:cursor-not-allowed text-white font-bold text-sm rounded-xl transition-all flex items-center space-x-2">
+                            <span>Next Question</span>
+                            <i class="fa-solid fa-arrow-right text-xs"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB 4: OPPOSITES LAB (GRAMMAR DRILL) -->
+        <section id="view-lab" class="tab-view hidden-tab space-y-6">
+            <div class="max-w-3xl mx-auto space-y-6">
+                <!-- Grammar Explanation Banner -->
+                <div class="bg-gradient-to-r from-emerald-900 via-teal-900 to-slate-900 rounded-3xl p-6 md:p-8 text-white shadow-xl space-y-4 border border-emerald-700/40">
+                    <div class="flex items-center space-x-3 text-emerald-400 font-bold text-sm tracking-wider uppercase">
+                        <i class="fa-solid fa-yin-yang text-lg"></i>
+                        <span>Essential Grammar Rule</span>
+                    </div>
+
+                    <h2 class="text-2xl md:text-3xl font-extrabold">Los Opuestos (Opposites)</h2>
+                    <p class="text-sm text-slate-200 leading-relaxed">
+                        In Spanish, many affirmative words have direct negative opposites. 
+                        Remember the "Double Negative" rule: If the negative word follows the verb, you must put "no" before the verb. Example: <em>No veo a <strong>nadie</strong>.</em> (I don't see anyone).
+                    </p>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
+                        <div class="bg-emerald-950/80 border border-emerald-600/40 rounded-2xl p-4 space-y-1">
+                            <div class="text-xs font-bold text-emerald-400 uppercase">Affirmative (Afirmativo)</div>
+                            <div class="text-sm text-slate-300 mt-2 space-y-1">
+                                <div><strong class="text-white">Alguien</strong> (someone)</div>
+                                <div><strong class="text-white">Algo</strong> (something)</div>
+                                <div><strong class="text-white">Siempre</strong> (always)</div>
+                                <div><strong class="text-white">También</strong> (also/too)</div>
+                            </div>
+                        </div>
+                        <div class="bg-emerald-950/80 border border-emerald-600/40 rounded-2xl p-4 space-y-1">
+                            <div class="text-xs font-bold text-teal-400 uppercase">Negative (Negativo)</div>
+                            <div class="text-sm text-slate-300 mt-2 space-y-1">
+                                <div><strong class="text-white">Nadie</strong> (no one)</div>
+                                <div><strong class="text-white">Nada</strong> (nothing)</div>
+                                <div><strong class="text-white">Nunca / Jamás</strong> (never)</div>
+                                <div><strong class="text-white">Tampoco</strong> (neither/not either)</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Interactive Opposites Drill -->
+                <div class="bg-white rounded-3xl p-6 md:p-8 shadow-md border border-slate-200 space-y-6">
+                    <div class="flex items-center justify-between border-b border-slate-100 pb-4">
+                        <h3 class="text-lg font-bold text-slate-900 flex items-center space-x-2">
+                            <i class="fa-solid fa-bolt text-emerald-600"></i>
+                            <span>Opposites Drill</span>
+                        </h3>
+                        <span id="labScoreBadge" class="text-xs font-bold bg-emerald-100 text-emerald-800 px-3 py-1 rounded-full">Score: 0</span>
+                    </div>
+
+                    <div class="text-center py-4 space-y-3">
+                        <span id="labTargetEnglish" class="text-xs font-bold tracking-wider text-slate-400 uppercase">What is the opposite of...</span>
+                        <h2 id="labPrompt" class="text-3xl md:text-4xl font-extrabold text-slate-800">alguien</h2>
+                        <div id="labContextHint" class="text-sm font-semibold text-blue-600">(someone / somebody)</div>
+                    </div>
+
+                    <!-- Choice Buttons (Populated Dynamically) -->
+                    <div id="labOptionsGrid" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <!-- Options generated in JS -->
+                    </div>
+
+                    <!-- Feedback Box -->
+                    <div id="labFeedback" class="hidden p-4 rounded-2xl text-center text-sm font-semibold space-y-2 mt-4">
+                        <!-- Dynamic feedback -->
+                    </div>
+
+                    <div class="flex justify-end pt-2">
+                        <button id="labNextBtn" onclick="nextLabQuestion()" class="px-6 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-sm rounded-xl transition-all flex items-center space-x-2 opacity-50 cursor-not-allowed" disabled>
+                            <span>Next Drill</span>
+                            <i class="fa-solid fa-arrow-right text-xs"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB 5: CONCEPT MAP EXPLORER -->
+        <section id="view-explorer" class="tab-view hidden-tab space-y-6">
+            <div class="bg-white rounded-3xl p-6 md:p-8 shadow-sm border border-slate-200/80 space-y-6">
+                <div>
+                    <h2 class="text-xl font-bold text-slate-900">Interactive Concept Map</h2>
+                    <p class="text-sm text-slate-500">Click on any grammatical category to explore related terms.</p>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-center">
+                    <!-- SVG Interactive Diagram -->
+                    <div class="lg:col-span-6 bg-slate-900 rounded-3xl p-6 flex justify-center items-center relative min-h-[420px] shadow-inner overflow-hidden">
+                        <svg viewBox="0 0 400 400" class="w-full max-w-[350px] h-auto">
+                            <!-- Connections -->
+                            <line x1="200" y1="100" x2="100" y2="250" stroke="#475569" stroke-width="3" stroke-dasharray="5,5" />
+                            <line x1="200" y1="100" x2="300" y2="250" stroke="#475569" stroke-width="3" stroke-dasharray="5,5" />
+                            <line x1="200" y1="100" x2="200" y2="300" stroke="#475569" stroke-width="3" stroke-dasharray="5,5" />
+
+                            <!-- Main Node (Español) -->
+                            <circle cx="200" cy="100" r="50" fill="#1e293b" stroke="#3b82f6" stroke-width="4" />
+                            <text x="200" y="105" font-family="sans-serif" font-size="16" font-weight="bold" fill="white" text-anchor="middle">Gramática</text>
+
+                            <!-- Afirmación Node -->
+                            <g onclick="selectConceptPin('afirmacion')" class="cursor-pointer group">
+                                <circle cx="100" cy="250" r="45" class="fill-emerald-600 group-hover:fill-emerald-500 transition-all stroke-4 stroke-emerald-300" />
+                                <text x="100" y="255" font-family="sans-serif" font-size="14" font-weight="bold" fill="white" text-anchor="middle">Afirmación</text>
+                            </g>
+
+                            <!-- Negación Node -->
+                            <g onclick="selectConceptPin('negacion')" class="cursor-pointer group">
+                                <circle cx="300" cy="250" r="45" class="fill-rose-600 group-hover:fill-rose-500 transition-all stroke-4 stroke-rose-300" />
+                                <text x="300" y="255" font-family="sans-serif" font-size="14" font-weight="bold" fill="white" text-anchor="middle">Negación</text>
+                            </g>
+
+                            <!-- Interrogación Node -->
+                            <g onclick="selectConceptPin('interrogacion')" class="cursor-pointer group">
+                                <circle cx="200" cy="300" r="45" class="fill-purple-600 group-hover:fill-purple-500 transition-all stroke-4 stroke-purple-300" />
+                                <text x="200" y="305" font-family="sans-serif" font-size="12" font-weight="bold" fill="white" text-anchor="middle">Interrogación</text>
+                            </g>
+                        </svg>
+                    </div>
+
+                    <!-- Region Vocabulary Detail List -->
+                    <div class="lg:col-span-6 space-y-4">
+                        <div class="flex justify-between items-center bg-slate-50 p-4 rounded-2xl border border-slate-200">
+                            <div>
+                                <span class="text-xs font-bold uppercase text-slate-400">Active Category</span>
+                                <h3 id="explorerCategoryTitle" class="text-xl font-bold text-slate-900">Select a concept</h3>
+                            </div>
+                            <span id="explorerTermCount" class="px-3 py-1 bg-blue-100 text-blue-800 text-xs font-bold rounded-full">0 Terms</span>
+                        </div>
+
+                        <div id="explorerTermsContainer" class="max-h-[350px] overflow-y-auto space-y-2 pr-2">
+                            <p class="text-sm text-slate-500 text-center py-4">Click a colored bubble on the left to see its vocabulary words here.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <script>
+        // Data Structure: 40 Items across Afirmación, Negación, and Interrogación
+        const vocabData = [
+            // Afirmación (14 items)
+            { id: 1, es: "sí", en: "yes", type: "afirmacion", phonetic: "SEE", note: "Affirmation" },
+            { id: 2, es: "claro", en: "of course / clear", type: "afirmacion", phonetic: "KLAH-roh", note: "Affirmation" },
+            { id: 3, es: "también", en: "also / too", type: "afirmacion", phonetic: "tahm-BYEHN", note: "Affirmation" },
+            { id: 4, es: "siempre", en: "always", type: "afirmacion", phonetic: "SYEHM-preh", note: "Affirmation" },
+            { id: 5, es: "algo", en: "something", type: "afirmacion", phonetic: "AHL-goh", note: "Affirmation" },
+            { id: 6, es: "alguien", en: "someone / somebody", type: "afirmacion", phonetic: "AHL-gyehn", note: "Affirmation" },
+            { id: 7, es: "algún / alguno", en: "some / any", type: "afirmacion", phonetic: "ahl-GOON / ahl-GOO-noh", note: "Affirmation" },
+            { id: 8, es: "a veces", en: "sometimes", type: "afirmacion", phonetic: "ah VEH-sehs", note: "Affirmation" },
+            { id: 9, es: "por supuesto", en: "of course / certainly", type: "afirmacion", phonetic: "por soo-PWEHS-toh", note: "Affirmation" },
+            { id: 10, es: "exacto", en: "exactly", type: "afirmacion", phonetic: "ehk-SAHK-toh", note: "Affirmation" },
+            { id: 11, es: "ciertamente", en: "certainly", type: "afirmacion", phonetic: "syehr-tah-MEHN-teh", note: "Affirmation" },
+            { id: 12, es: "sin duda", en: "without a doubt", type: "afirmacion", phonetic: "seen DOO-dah", note: "Affirmation" },
+            { id: 13, es: "evidente", en: "evident / obvious", type: "afirmacion", phonetic: "eh-vee-DEHN-teh", note: "Affirmation" },
+            { id: 14, es: "seguro", en: "sure / secure", type: "afirmacion", phonetic: "seh-GOO-roh", note: "Affirmation" },
+            
+            // Negación (12 items)
+            { id: 15, es: "no", en: "no / not", type: "negacion", phonetic: "NOH", note: "Negation" },
+            { id: 16, es: "nunca", en: "never", type: "negacion", phonetic: "NOON-kah", note: "Negation" },
+            { id: 17, es: "jamás", en: "never / not ever", type: "negacion", phonetic: "hah-MAHS", note: "Negation" },
+            { id: 18, es: "tampoco", en: "neither / not either", type: "negacion", phonetic: "tahm-POH-koh", note: "Negation" },
+            { id: 19, es: "nada", en: "nothing / anything", type: "negacion", phonetic: "NAH-dah", note: "Negation" },
+            { id: 20, es: "nadie", en: "nobody / no one", type: "negacion", phonetic: "NAH-dyeh", note: "Negation" },
+            { id: 21, es: "ningún / ninguno", en: "none / not any", type: "negacion", phonetic: "neen-GOON / neen-GOO-noh", note: "Negation" },
+            { id: 22, es: "ni... ni", en: "neither... nor", type: "negacion", phonetic: "NEE... NEE", note: "Negation" },
+            { id: 23, es: "de ninguna manera", en: "no way / by no means", type: "negacion", phonetic: "deh neen-GOO-nah mah-NEH-rah", note: "Negation" },
+            { id: 24, es: "en absoluto", en: "not at all", type: "negacion", phonetic: "ehn ahb-soh-LOO-toh", note: "Negation" },
+            { id: 25, es: "todavía no", en: "not yet", type: "negacion", phonetic: "toh-dah-VEE-ah NOH", note: "Negation" },
+            { id: 26, es: "ya no", en: "not anymore", type: "negacion", phonetic: "YAH noh", note: "Negation" },
+
+            // Interrogación (14 items)
+            { id: 27, es: "qué", en: "what", type: "interrogacion", phonetic: "KEH", note: "Question Word" },
+            { id: 28, es: "quién / quiénes", en: "who", type: "interrogacion", phonetic: "KYEHN / KYEH-nehs", note: "Question Word" },
+            { id: 29, es: "cómo", en: "how", type: "interrogacion", phonetic: "KOH-moh", note: "Question Word" },
+            { id: 30, es: "cuándo", en: "when", type: "interrogacion", phonetic: "KWAHN-doh", note: "Question Word" },
+            { id: 31, es: "dónde", en: "where", type: "interrogacion", phonetic: "DOHN-deh", note: "Question Word" },
+            { id: 32, es: "por qué", en: "why", type: "interrogacion", phonetic: "por KEH", note: "Question Word" },
+            { id: 33, es: "cuál / cuáles", en: "which", type: "interrogacion", phonetic: "KWAHL / KWAH-lehs", note: "Question Word" },
+            { id: 34, es: "cuánto / cuánta", en: "how much", type: "interrogacion", phonetic: "KWAHN-toh / KWAHN-tah", note: "Question Word" },
+            { id: 35, es: "cuántos / cuántas", en: "how many", type: "interrogacion", phonetic: "KWAHN-tohs / KWAHN-tahs", note: "Question Word" },
+            { id: 36, es: "adónde", en: "to where", type: "interrogacion", phonetic: "ah-DOHN-deh", note: "Question Word" },
+            { id: 37, es: "de dónde", en: "from where", type: "interrogacion", phonetic: "deh DOHN-deh", note: "Question Word" },
+            { id: 38, es: "para qué", en: "what for", type: "interrogacion", phonetic: "pah-rah KEH", note: "Question Word" },
+            { id: 39, es: "de quién", en: "whose", type: "interrogacion", phonetic: "deh KYEHN", note: "Question Word" },
+            { id: 40, es: "verdad", en: "right? / isn't it?", type: "interrogacion", phonetic: "vehr-DAHD", note: "Question Tag" }
+        ];
+
+        // Opposites pairs for Lab
+        const oppositesData = [
+            { es: "algo", opp_es: "nada", en: "something", opp_en: "nothing" },
+            { es: "alguien", opp_es: "nadie", en: "someone", opp_en: "no one" },
+            { es: "siempre", opp_es: "nunca", en: "always", opp_en: "never" },
+            { es: "también", opp_es: "tampoco", en: "also", opp_en: "neither" },
+            { es: "algún", opp_es: "ningún", en: "some", opp_en: "none" }
+        ];
+
+        // Global State
+        let score = 0;
+        let streak = 0;
+        let learnedSet = new Set();
+        
+        let flashcardQueue = [...vocabData];
+        let currentCardIndex = 0;
+        
+        let quizQuestions = [];
+        let currentQuizIndex = 0;
+        let quizScore = 0;
+
+        let labQueue = [];
+        let currentLabIndex = 0;
+        let labScore = 0;
+
+        function updateStats() {
+            document.getElementById('headerScore').innerText = score;
+            document.getElementById('headerStreak').innerText = streak;
+            document.getElementById('headerLearned').innerText = learnedSet.size;
+        }
+
+        function switchTab(tabId) {
+            // Hide all views
+            const views = document.querySelectorAll('.tab-view');
+            views.forEach(view => {
+                view.classList.add('hidden-tab');
+                view.classList.remove('block');
+            });
+            
+            // Reset all tabs active state
+            const tabs = document.querySelectorAll('.nav-tab');
+            tabs.forEach(tab => {
+                tab.classList.remove('text-blue-400', 'bg-slate-800', 'active');
+                tab.classList.add('text-slate-400');
+            });
+
+            // Show selected view
+            const activeView = document.getElementById(`view-${tabId}`);
+            activeView.classList.remove('hidden-tab');
+            activeView.classList.add('block');
+
+            // Set active tab styling
+            const activeTab = document.getElementById(`tab-${tabId}`);
+            activeTab.classList.remove('text-slate-400');
+            activeTab.classList.add('text-blue-400', 'bg-slate-800', 'active');
+
+            // Special initializations per tab
+            if(tabId === 'flashcards' && flashcardQueue.length === vocabData.length) {
+                updateFlashcardUI();
+            } else if(tabId === 'quiz' && quizQuestions.length === 0) {
+                startNewQuiz();
+            } else if(tabId === 'lab' && labQueue.length === 0) {
+                startNewLab();
+            }
+        }
+
+        function playAudio(text, lang = 'es-ES') {
+            if ('speechSynthesis' in window) {
+                const utterance = new SpeechSynthesisUtterance(text);
+                utterance.lang = lang;
+                window.speechSynthesis.speak(utterance);
+            }
+        }
+
+        function renderVocabList(data) {
+            const grid = document.getElementById('vocabGrid');
+            grid.innerHTML = '';
+            
+            data.forEach(item => {
+                const badgeColor = item.type === 'afirmacion' ? 'bg-emerald-100 text-emerald-700' :
+                                   item.type === 'negacion' ? 'bg-rose-100 text-rose-700' :
+                                   'bg-purple-100 text-purple-700';
+                                   
+                const card = document.createElement('div');
+                card.className = "bg-white p-4 rounded-xl shadow-sm border border-slate-200 hover:shadow-md transition-shadow relative overflow-hidden flex flex-col";
+                card.innerHTML = `
+                    <div class="flex justify-between items-start mb-2">
+                        <span class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded ${badgeColor}">
+                            ${item.type}
+                        </span>
+                        <button onclick="playAudio('${item.es}')" class="text-slate-400 hover:text-blue-500 transition-colors">
+                            <i class="fa-solid fa-volume-high"></i>
+                        </button>
+                    </div>
+                    <div class="mt-2 flex-grow">
+                        <h3 class="text-xl font-bold text-slate-900">${item.es}</h3>
+                        <p class="text-sm text-slate-500 mt-1">${item.en}</p>
+                        <p class="text-xs text-slate-400 italic mt-2">${item.phonetic}</p>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        function filterVocab() {
+            const query = document.getElementById('vocabSearch').value.toLowerCase();
+            const typeFilter = document.getElementById('vocabFilter').value;
+            
+            const filtered = vocabData.filter(item => {
+                const matchesSearch = item.es.toLowerCase().includes(query) || item.en.toLowerCase().includes(query);
+                const matchesType = typeFilter === 'all' || item.type === typeFilter;
+                return matchesSearch && matchesType;
+            });
+            renderVocabList(filtered);
+        }
+
+        function toggleCardFlip() {
+            const card = document.getElementById('flashcardElement');
+            card.classList.toggle('flipped');
+        }
+
+        function updateFlashcardUI() {
+            if (flashcardQueue.length === 0) return;
+            const item = flashcardQueue[currentCardIndex];
+            
+            // Remove flip state if present
+            document.getElementById('flashcardElement').classList.remove('flipped');
+            
+            document.getElementById('cardIndex').innerText = currentCardIndex + 1;
+            document.getElementById('cardTotal').innerText = flashcardQueue.length;
+            
+            document.getElementById('cardSpanish').innerText = item.es;
+            document.getElementById('cardPhonetic').innerText = item.phonetic;
+            document.getElementById('cardEnglish').innerText = item.en;
+            document.getElementById('cardCategoryBadge').innerText = item.type.toUpperCase();
+            document.getElementById('cardSampleSentence').innerText = `Pronounce: ${item.es}`;
+        }
+
+        function playCurrentCardAudio() {
+            const item = flashcardQueue[currentCardIndex];
+            playAudio(item.es);
+        }
+
+        function processCardResult(mastered) {
+            const item = flashcardQueue[currentCardIndex];
+            if(mastered) {
+                learnedSet.add(item.id);
+                score += 10;
+                streak += 1;
+                updateStats();
+            } else {
+                streak = 0;
+                updateStats();
+            }
+            
+            if (currentCardIndex < flashcardQueue.length - 1) {
+                currentCardIndex++;
+                updateFlashcardUI();
+            } else {
+                // Done
+                document.getElementById('flashcardElement').innerHTML = `
+                    <div class="card-front absolute inset-0 rounded-3xl p-8 flex flex-col justify-center items-center text-center bg-emerald-50 border-2 border-emerald-200 text-emerald-800">
+                        <i class="fa-solid fa-trophy text-4xl mb-4 text-emerald-500"></i>
+                        <h3 class="text-2xl font-bold">Deck Completed!</h3>
+                        <p class="text-sm mt-2">Shuffle or Reset to practice again.</p>
+                    </div>
+                `;
+            }
+        }
+
+        function shuffleFlashcards() {
+            flashcardQueue = [...vocabData].sort(() => Math.random() - 0.5);
+            currentCardIndex = 0;
+            updateFlashcardUI();
+        }
+
+        function resetFlashcards() {
+            flashcardQueue = [...vocabData];
+            currentCardIndex = 0;
+            updateFlashcardUI();
+        }
+
+        function startNewQuiz() {
+            const type = document.getElementById('quizType').value;
+            // Generate 10 random questions
+            quizQuestions = [...vocabData].sort(() => Math.random() - 0.5).slice(0, 10);
+            currentQuizIndex = 0;
+            quizScore = 0;
+            renderQuizQuestion(type);
+        }
+
+        function renderQuizQuestion(quizType) {
+            if (currentQuizIndex >= quizQuestions.length) {
+                showQuizEnd();
+                return;
+            }
+
+            const item = quizQuestions[currentQuizIndex];
+            document.getElementById('quizQuestionNum').innerText = currentQuizIndex + 1;
+            document.getElementById('quizScoreBadge').innerText = `Score: ${quizScore}/${quizQuestions.length}`;
+            
+            const nextBtn = document.getElementById('quizNextBtn');
+            nextBtn.disabled = true;
+            nextBtn.onclick = () => nextQuizQuestion();
+            
+            const optionsGrid = document.getElementById('quizOptionsGrid');
+            optionsGrid.innerHTML = '';
+            
+            const feedback = document.getElementById('quizFeedback');
+            feedback.className = "hidden p-4 rounded-2xl text-center text-sm font-semibold transition-all";
+
+            // Generate distractors
+            let distractors = vocabData.filter(v => v.id !== item.id).sort(() => Math.random() - 0.5).slice(0, 3);
+            let options = [item, ...distractors].sort(() => Math.random() - 0.5);
+
+            const isEsToEn = quizType === 'es_en';
+            const isAudio = quizType === 'audio';
+            
+            const promptText = isEsToEn ? item.es : (isAudio ? "Listen carefully..." : item.en);
+            document.getElementById('quizQuestionText').innerText = promptText;
+            
+            const audioBtn = document.getElementById('quizAudioBtn');
+            if (isAudio || isEsToEn) {
+                audioBtn.style.display = 'flex';
+                if(isAudio) playAudio(item.es);
+            } else {
+                audioBtn.style.display = 'none';
+            }
+
+            options.forEach((opt, idx) => {
+                const btn = document.createElement('button');
+                btn.className = "quiz-opt-btn p-4 bg-slate-50 hover:bg-blue-50 border-2 border-slate-200 hover:border-blue-400 rounded-xl text-left font-semibold text-slate-800 transition-all";
+                const btnText = isEsToEn || isAudio ? opt.en : opt.es;
+                btn.innerText = btnText;
+                
+                btn.onclick = () => handleQuizAnswer(btn, opt.id === item.id, item);
+                optionsGrid.appendChild(btn);
+            });
+        }
+
+        function handleQuizAnswer(selectedBtn, isCorrect, correctItem) {
+            const type = document.getElementById('quizType').value;
+            const buttons = document.querySelectorAll('.quiz-opt-btn');
+            buttons.forEach(b => {
+                b.disabled = true;
+                b.classList.remove('hover:bg-blue-50', 'hover:border-blue-400', 'cursor-pointer');
+            });
+            
+            const feedback = document.getElementById('quizFeedback');
+            feedback.classList.remove('hidden');
+
+            if (isCorrect) {
+                selectedBtn.classList.add('bg-emerald-100', 'border-emerald-500', 'text-emerald-800');
+                feedback.classList.add('bg-emerald-100', 'text-emerald-800');
+                feedback.innerHTML = `<i class="fa-solid fa-circle-check mr-2"></i> Correct! ${correctItem.es} = ${correctItem.en}`;
+                quizScore++;
+                score += 5;
+                streak++;
+            } else {
+                selectedBtn.classList.add('bg-rose-100', 'border-rose-500', 'text-rose-800');
+                feedback.classList.add('bg-rose-100', 'text-rose-800');
+                feedback.innerHTML = `<i class="fa-solid fa-circle-xmark mr-2"></i> Incorrect. The right answer is: ${type === 'en_es' ? correctItem.es : correctItem.en}`;
+                streak = 0;
+            }
+            updateStats();
+            document.getElementById('quizScoreBadge').innerText = `Score: ${quizScore}/${quizQuestions.length}`;
+            document.getElementById('quizNextBtn').disabled = false;
+        }
+
+        function nextQuizQuestion() {
+            currentQuizIndex++;
+            const type = document.getElementById('quizType').value;
+            renderQuizQuestion(type);
+        }
+
+        function showQuizEnd() {
+            document.getElementById('quizQuestionText').innerText = "Quiz Complete!";
+            document.getElementById('quizOptionsGrid').innerHTML = '';
+            document.getElementById('quizFeedback').className = "p-6 rounded-2xl text-center font-bold bg-blue-100 text-blue-800";
+            document.getElementById('quizFeedback').innerHTML = `You scored ${quizScore} out of ${quizQuestions.length}!`;
+            document.getElementById('quizHintText').innerText = "";
+            document.getElementById('quizAudioBtn').style.display = 'none';
+            
+            const nextBtn = document.getElementById('quizNextBtn');
+            nextBtn.innerText = "Restart Quiz";
+            nextBtn.disabled = false;
+            nextBtn.onclick = startNewQuiz;
+        }
+
+        function playQuizQuestionAudio() {
+            const item = quizQuestions[currentQuizIndex];
+            if(item) playAudio(item.es);
+        }
+
+        function startNewLab() {
+            labQueue = [...oppositesData].sort(() => Math.random() - 0.5);
+            currentLabIndex = 0;
+            labScore = 0;
+            renderLabQuestion();
+        }
+
+        function renderLabQuestion() {
+            if (currentLabIndex >= labQueue.length) {
+                // Lab complete
+                startNewLab(); // simple restart for now
+                return;
+            }
+
+            const pair = labQueue[currentLabIndex];
+            document.getElementById('labScoreBadge').innerText = `Score: ${labScore}`;
+            document.getElementById('labPrompt').innerText = pair.es;
+            document.getElementById('labContextHint').innerText = `(${pair.en})`;
+            
+            const optionsGrid = document.getElementById('labOptionsGrid');
+            optionsGrid.innerHTML = '';
+            
+            document.getElementById('labFeedback').classList.add('hidden');
+            document.getElementById('labNextBtn').disabled = true;
+            document.getElementById('labNextBtn').classList.add('opacity-50', 'cursor-not-allowed');
+
+            // Find distractors (other negative words)
+            let otherNegatives = oppositesData.filter(d => d.opp_es !== pair.opp_es).map(d => d.opp_es);
+            otherNegatives = otherNegatives.sort(() => Math.random() - 0.5).slice(0, 3);
+            
+            let options = [pair.opp_es, ...otherNegatives].sort(() => Math.random() - 0.5);
+
+            options.forEach(opt => {
+                const btn = document.createElement('button');
+                btn.className = "lab-opt-btn p-4 bg-slate-50 hover:bg-emerald-50 border-2 border-slate-200 hover:border-emerald-500 rounded-2xl font-bold text-slate-800 transition-all flex items-center justify-between";
+                btn.innerHTML = `<span class="text-xl">${opt}</span> <i class="fa-solid fa-chevron-right text-slate-400"></i>`;
+                btn.onclick = () => handleLabAnswer(btn, opt === pair.opp_es, pair);
+                optionsGrid.appendChild(btn);
+            });
+        }
+
+        function handleLabAnswer(selectedBtn, isCorrect, pair) {
+            const buttons = document.querySelectorAll('.lab-opt-btn');
+            buttons.forEach(b => {
+                b.disabled = true;
+                b.classList.remove('hover:bg-emerald-50', 'hover:border-emerald-500');
+            });
+
+            const feedback = document.getElementById('labFeedback');
+            feedback.classList.remove('hidden');
+
+            if (isCorrect) {
+                selectedBtn.classList.add('bg-emerald-100', 'border-emerald-500', 'text-emerald-900');
+                feedback.className = "p-4 rounded-2xl text-center text-sm font-semibold space-y-2 mt-4 bg-emerald-100 text-emerald-800";
+                feedback.innerHTML = `<div>¡Correcto!</div><div class="font-normal">The opposite of <strong>${pair.es}</strong> is <strong>${pair.opp_es}</strong>.</div>`;
+                labScore++;
+                score += 5;
+            } else {
+                selectedBtn.classList.add('bg-rose-100', 'border-rose-500', 'text-rose-900');
+                feedback.className = "p-4 rounded-2xl text-center text-sm font-semibold space-y-2 mt-4 bg-rose-100 text-rose-800";
+                feedback.innerHTML = `<div>Incorrecto</div><div class="font-normal">The correct opposite of <strong>${pair.es}</strong> is <strong>${pair.opp_es}</strong>.</div>`;
+            }
+
+            updateStats();
+            document.getElementById('labScoreBadge').innerText = `Score: ${labScore}`;
+            const nextBtn = document.getElementById('labNextBtn');
+            nextBtn.disabled = false;
+            nextBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+        }
+
+        function nextLabQuestion() {
+            currentLabIndex++;
+            renderLabQuestion();
+        }
+
+        function selectConceptPin(typeId) {
+            const titleMap = {
+                'afirmacion': 'Afirmación (Affirmation)',
+                'negacion': 'Negación (Negation)',
+                'interrogacion': 'Interrogación (Question Words)'
+            };
+            
+            document.getElementById('explorerCategoryTitle').innerText = titleMap[typeId];
+            
+            const filteredTerms = vocabData.filter(v => v.type === typeId);
+            document.getElementById('explorerTermCount').innerText = `${filteredTerms.length} Terms`;
+            
+            const container = document.getElementById('explorerTermsContainer');
+            container.innerHTML = '';
+            
+            filteredTerms.forEach(term => {
+                const el = document.createElement('div');
+                el.className = "bg-white p-3 rounded-xl border border-slate-200 flex justify-between items-center cursor-pointer hover:border-blue-400 transition-colors";
+                el.onclick = () => playAudio(term.es);
+                el.innerHTML = `
+                    <div>
+                        <div class="font-bold text-slate-800">${term.es}</div>
+                        <div class="text-xs text-slate-500">${term.en}</div>
+                    </div>
+                    <button class="w-8 h-8 rounded-full bg-slate-100 text-slate-600 flex items-center justify-center">
+                        <i class="fa-solid fa-volume-high text-xs"></i>
+                    </button>
+                `;
+                container.appendChild(el);
+            });
+        }
+
+        function exportProgress() {
+            let csvContent = "data:text/csv;charset=utf-8,";
+            csvContent += "Type,Spanish,English,Mastered\r\n";
+            vocabData.forEach(item => {
+                let mastered = learnedSet.has(item.id) ? "Yes" : "No";
+                let row = `${item.type},${item.es},${item.en},${mastered}`;
+                csvContent += row + "\r\n";
+            });
+            
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", "grammar_progress.csv");
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        // Initialize the app
+        window.onload = () => {
+            renderVocabList(vocabData);
+        };
+    </script>
+</body>
+</html>
